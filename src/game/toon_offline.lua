@@ -68,6 +68,10 @@ function O.install()
     camera:follow(player.x,player.y)
     showUI=true
     Tiles.init()
+    if os.getenv("TOONROYALE_REQUIRE_TINY")=="1" then
+      assert(require("src.game.tiny_swords_assets").available(),
+        "Tiny Swords PNGs nao foram carregados no LÖVE2D")
+    end
   end
   function love.update(dt)
     dt=math.min(dt,0.06)
