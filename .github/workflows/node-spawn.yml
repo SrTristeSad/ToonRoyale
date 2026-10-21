@@ -1,0 +1,88 @@
+name: Original Node authenticated spawn
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node-spawn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Moo-Quest (without third-party game art)
+        uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare pinned original Node server in temp workspace
+        run: |
+          set -eu
+          curl -fL --retry 3 -o /tmp/moomoo-upstream.zip \
+            'https://github.com/al007ex/moomoo-clone/archive/06f7c1ca965a7628671676c8d9a7efd3997bb5e7.zip'
+          unzip -q /tmp/moomoo-upstream.zip -d /tmp
+          mv /tmp/moomoo-clone-06f7c1ca965a7628671676c8d9a7efd3997bb5e7 node-runtime
+          cp support/local-anticheat-config.js node-runtime/server/src/anticheat/config.js
+          cd node-runtime
+          npm install --omit=dev --no-audit --no-fund
+      - name: Install Moo-Quest local artwork tools (WebP to true PNG)
+        run: npm install --omit=dev --no-audit --no-fund
+      - name: Install LÖVE 2D, LuaSocket and headless display for true client E2E
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y love lua-socket xvfb xauth libgl1-mesa-dri
+      - name: Boot unmodified Node game logic and require real C after M
+        run: |
+          set -eu
+          HOST=127.0.0.1 PORT=8080 node node-runtime/server/src/index.js > /tmp/moo-node.log 2>&1 &
+          server_pid=$!
+          trap 'cat /tmp/moo-node.log; kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 70); do
+            if curl -fsS http://127.0.0.1:8080/ping >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 0.2
+          done
+          test "$ready" -eq 1
+          echo "Resolve original live build even when MOOQUEST_BUILD_FILE is wrong"
+          live_build=$(node tools/resolve-local-build.mjs)
+          test -f "$live_build"
+          fallback_build=$(MOOQUEST_BUILD_FILE=/tmp/old-missing-build.json node tools/resolve-local-build.mjs)
+          test "$fallback_build" = "$live_build"
+          printf '{"buildId":"stale-other-server","constants":[1,2,3,4,5,6,7,8]}' > /tmp/stale-protocol-build.json
+          stale_build=$(MOOQUEST_BUILD_FILE=/tmp/stale-protocol-build.json node tools/resolve-local-build.mjs)
+          test "$stale_build" = "$live_build"
+          node tools/check-node-spawn.mjs
+          echo "Run REAL Lua guest connection to Node via LÖVE"
+          SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 \
+            MOOQUEST_INTEGRATION=guest \
+            xvfb-run -a -s "-screen 0 1280x720x24" love .
+          echo "Run REAL Lua local account connection to Node via LÖVE"
+          SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 \
+            MOOQUEST_INTEGRATION=account \
+            xvfb-run -a -s "-screen 0 1280x720x24" love .
+          echo "Install original client PNGs locally for UI render (never committed or uploaded)"
+          node tools/sync-reference-art.mjs
+          echo "Verify converted images are PNG, not misnamed WebP"
+          node --input-type=module -e "import fs from 'node:fs';for(const n of ['hammer_1.png','sword_1.png','dagger_1.png','samurai_1.png']){const data=fs.readFileSync('assets/reference/img/weapons/'+n);if(data.subarray(0,8).toString('hex')!=='89504e470d0a1a0a')throw Error(n+' is not a PNG')}console.log('PASS: original WebP files converted to real PNGs')"
+          echo "Classify the original PNG and WebP image data accurately"
+          node tools/inspect-reference-png.mjs node-runtime/client/public/img
+          echo "Run real opening-menu Play button -> native C/D -> graphics/HUD"
+          SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 \
+            MOOQUEST_UI_E2E=1 \
+            timeout 35s xvfb-run -a -s "-screen 0 1280x720x24" love .
+          echo "Run login UI -> account-bound join -> gameplay graphics"
+          SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 \
+            MOOQUEST_UI_E2E=account \
+            timeout 35s xvfb-run -a -s "-screen 0 1280x720x24" love .
+          echo "Run registration UI -> account-bound join -> gameplay graphics"
+          SDL_AUDIODRIVER=dummy LIBGL_ALWAYS_SOFTWARE=1 \
+            MOOQUEST_UI_E2E=register \
+            timeout 35s xvfb-run -a -s "-screen 0 1280x720x24" love .
