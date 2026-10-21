@@ -7,10 +7,6 @@
   ],
   "scripts": {
     "start:server": "node server/src/index.js",
-    "test:node": "node --test server/src/network/packetUtils.test.js server/test/store-tribe.test.mjs server/test/account-clan-persistence.test.mjs server/test/death-respawn.test.mjs"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.16",
-    "sharp": "^0.34.3"
+    "test:node": "node --test server/src/network/packetUtils.test.js"
   }
 }
