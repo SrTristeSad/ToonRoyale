@@ -1,3 +1,14 @@
+-- ToonRoyale e baseado no cliente Lua original do Moo-Quest.
+-- O novo mundo em tiles inicia offline; os sistemas Moo-Quest continuam
+-- acessiveis com TOONROYALE_ONLINE=1 e os testes mantem o fluxo original.
+if os.getenv("TOONROYALE_ONLINE")~="1"
+  and os.getenv("MOOQUEST_TESTS")~="1"
+  and not os.getenv("MOOQUEST_INTEGRATION")
+  and not os.getenv("MOOQUEST_UI_E2E") then
+  require("src.game.toon_offline").install()
+  return
+end
+
 -- Moo-Quest is a Lua client for the UNMODIFIED al007ex/moomoo-clone server.
 -- Real native gameplay rendering is gated by actual server C/D/a/H/I packets.
 -- Never generate local entities or claim spawn before the Node server confirms it.

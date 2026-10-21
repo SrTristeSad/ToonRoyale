@@ -1,5 +1,7 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+rem Preserva o launcher do Moo-Quest para multiplayer original.
+set "TOONROYALE_ONLINE=1"
 cd /d "%~dp0"
 title Moo-Quest - Cliente Lua / Servidor original
 set "GAME_DIR=%~dp0."
