@@ -201,8 +201,18 @@ end
 function T.drawGround(camera,w,h)
   T.init()
   local s=T.TILE
-  local x0,y0=camera:screenToWorld(0,0)
-  local x1,y1=camera:screenToWorld(w,h)
+  local x0,y0,x1,y1
+  if camera.screenToWorld then
+    x0,y0=camera:screenToWorld(0,0)
+    x1,y1=camera:screenToWorld(w,h)
+  else
+    -- Alguns render tests legados do Moo-Quest usam camera simplificada.
+    -- Reconstituir area visivel por origem/zoom preserva compatibilidade.
+    local ox,oy=camera:worldToScreen(0,0)
+    local zoom=camera.zoom or 1
+    x0,y0=-ox/zoom,-oy/zoom
+    x1,y1=(w-ox)/zoom,(h-oy)/zoom
+  end
   local ax,ay=floor(x0/s)-1,floor(y0/s)-1
   local bx,by=floor(x1/s)+1,floor(y1/s)+1
   love.graphics.setColor(1,1,1,1)
