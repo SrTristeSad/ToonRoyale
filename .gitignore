@@ -27,3 +27,7 @@ server/node_modules/
 server/data/
 assets/custom/
 ARTES-PENDENTES.txt
+
+# Tiny Swords assets are for LOCAL installation only (Pixel Frog license).
+assets/third_party/
+Tiny Swords (Free Pack)*.zip

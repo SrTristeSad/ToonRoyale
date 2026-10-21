@@ -1,6 +1,7 @@
 -- ToonRoyale: visual tile-based sem dependencias externas.
 -- Os canvases gerados aqui sao sprites temporarios: nao substituem PNGs finais.
 -- Os detalhes sao deterministas, sem emendas visiveis entre os tiles.
+local TinyAssets=require("src.game.tiny_swords_assets")
 local T={}
 T.TILE=96
 local ground,resources,avatar
@@ -199,6 +200,7 @@ function T.init()
 end
 
 function T.drawGround(camera,w,h)
+  if TinyAssets.drawGround(camera,w,h) then return end
   T.init()
   local s=T.TILE
   local x0,y0,x1,y1
@@ -225,13 +227,14 @@ function T.drawGround(camera,w,h)
   end
 end
 
-function T.drawResource(kind,x,y,r,zoom)
+function T.drawResource(kind,x,y,r,zoom,worldX,worldY)
+  if TinyAssets.drawResource(kind,x,y,r,zoom,worldX,worldY) then return true end
   T.init()
   local key=kind==0 and "tree" or kind==1 and "bush" or
     kind==2 and "rock" or kind==3 and "gold" or nil
   if not key then return false end
   local variants=resources[key]
-  local i=1+floor(hash(floor(x),floor(y),11)*#variants)
+  local i=1+floor(hash(floor(worldX or x),floor(worldY or y),11)*#variants)
   local img=variants[i]
   local size=math.max(1,(r or 85)*2.1*(zoom or 1))
   love.graphics.setColor(1,1,1,1)

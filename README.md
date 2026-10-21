@@ -21,3 +21,16 @@ No modo online, grama, arvores, arbustos, pedras e ouro ja podem ser renderizado
 Os tiles de grama (96x96) e sprites top-down das arvores, pedras e personagem sao gerados em canvases no arquivo src/game/toon_tiles.lua. **Sao artes procedurais provisórias**, nao PNGs finais. O desenho foi isolado num modulo para possibilitar a troca posterior por PNGs cartoon originais sem reescrever a logica do jogo.
 
 O modo offline ainda nao tem coleta, inventario, construcao, salvamento nem multiplayer; o Moo-Quest online preservado possui seus proprios sistemas.
+
+## Arte Tiny Swords (Pixel Frog)
+
+O ToonRoyale usa o pacote **Tiny Swords Free Pack** para a grama (tiles de 64x64), quatro arvores animadas, quatro arbustos animados, quatro pedras e seis pedras de ouro. **O codigo do jogo esta pronto para essas artes, mas os PNGs nao estao no GitHub** por causa da licenca do autor.
+
+1. Baixe seu ZIP na pagina oficial: https://pixelfrog-assets.itch.io/tiny-swords
+2. No Windows, **arraste o ZIP para IMPORTAR-TINY-SWORDS.bat** (ou coloque o ZIP na pasta raiz e execute o BAT).
+3. Execute INICIAR-TOONROYALE.bat. O mapa offline exibira automaticamente as artes importadas.
+4. Para outros sistemas, execute npm install e depois node tools/import-tiny-swords.mjs "/caminho/Tiny Swords (Free Pack).zip".
+
+As 19 imagens selecionadas vao para a pasta local assets/third_party/tiny_swords/, ignorada pelo Git. Caso voce nao importe o pacote, o jogo ainda abre com as artes procedurais provisórias. A importacao nao altera as regras do servidor Moo-Quest.
+
+Licenca: o autor permite uso em jogos pessoais/comerciais, mas nao a redistribuicao, revenda ou reempacotamento dos arquivos de arte (mesmo editados). Nao publique assets/third_party em repositorios ou downloads de assets. Credito opcional: Tiny Swords, Pixel Frog.

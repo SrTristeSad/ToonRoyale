@@ -205,7 +205,7 @@ function O.draw(obj,x,y,zoom)
   local hasItem=type(obj.id)=="number" and Catalog.itemById(obj.id)~=nil
   if not hasItem and type(obj.type)=="number"
     and obj.type>=0 and obj.type<=3 then
-    return ToonTiles.drawResource(obj.type,x,y,obj.scale,zoom)
+    return ToonTiles.drawResource(obj.type,x,y,obj.scale,zoom,obj.x,obj.y)
   end
   local sprite=O.sprite(obj)
   if not sprite then return false end
