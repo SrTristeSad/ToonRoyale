@@ -37,7 +37,8 @@ M.paths={
   "tests/local_auth.lua",
   "tests/json.lua",
   "tests/clan_api.lua",
-  "tests/account_clans.lua"
+  "tests/account_clans.lua",
+  "tests/toon_world.lua"
 }
 function M.run()
   local results={passed=0,failed=0,rows={}}
@@ -60,7 +61,7 @@ function M.run()
     print((success and "[PASS] " or "[FAIL] ")..path..
       (success and "" or (" : "..tostring(errorMessage))))
   end
-  local summary=("Moo-Quest LÖVE tests: %d passed; %d failed"):format(
+  local summary=("ToonRoyale/Moo-Quest LÖVE tests: %d passed; %d failed"):format(
     results.passed,results.failed)
   print(summary)
   local text={summary}

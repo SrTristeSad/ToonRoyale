@@ -52,15 +52,15 @@ jobs:
             $ready=$false
             for($i=0; $i -lt 80; $i++) {
               try {
-                $s=Invoke-RestMethod 'http://127.0.0.1:8080/mooquest/status' -TimeoutSec 2
-                if($s.project -eq 'Moo-Quest' -and $s.economy -eq 'gather') {
+                $s=Invoke-RestMethod 'http://127.0.0.1:8080/ping' -TimeoutSec 2
+                if($s.status -eq 'ok' -and $s.build) {
                   $ready=$true
                   break
                 }
               } catch {}
               Start-Sleep -Milliseconds 200
             }
-            if(-not $ready) { throw "Our Node server never reported gather mode" }
+            if(-not $ready) { throw "The bundled Node server did not respond to /ping" }
             node tools/check-node-spawn.mjs
             if($LASTEXITCODE -ne 0) { throw "Node M->C->D or economy check failed" }
             $build=(& node tools/resolve-local-build.mjs).Trim()

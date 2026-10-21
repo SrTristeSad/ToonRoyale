@@ -1,0 +1,29 @@
+name: ToonRoyale offline graphical smoke
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tiled-world:
+    name: Render world and tiles in LOVE2D
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      TOONROYALE_SMOKE: "1"
+      SDL_AUDIODRIVER: dummy
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LOVE2D and virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y love xvfb xauth libgl1-mesa-dri
+      - name: Verify offline world renders and exits after four frames
+        run: |
+          set -eu
+          timeout 45s xvfb-run -a -s "-screen 0 1280x720x24" love .

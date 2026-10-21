@@ -10,6 +10,7 @@ local Assets=require("src.game.reference_assets")
 local CombatText=require("src.game.reference_combat_text")
 local BossEffects=require("src.game.reference_boss_effects")
 local SecretMap=require("src.game.reference_secret_map")
+local ToonTiles=require("src.game.toon_tiles")
 local View={}
 -- client/src/index.js updateGame waterMult / waterPlus (Canvas only).
 local waterMult=1
@@ -59,8 +60,8 @@ local function river(camera,w)
   love.graphics.rectangle("fill",0,y-water/2,w,water)
 end
 local function ground(camera,w,h)
-  Shapes.color("#b6db66")
-  love.graphics.rectangle("fill",0,0,w,h)
+  -- A grama agora usa tiles repetiveis, renderizados apenas no viewport.
+  ToonTiles.drawGround(camera,w,h)
   local _,snow=camera:worldToScreen(0,C.snowBiomeTop)
   if snow>0 then
     Shapes.color("#ffffff")

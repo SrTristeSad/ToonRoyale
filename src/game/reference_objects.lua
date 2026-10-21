@@ -4,6 +4,7 @@
 local C=require("src.game.config")
 local Catalog=require("src.game.catalog")
 local P=require("src.game.reference_primitives")
+local ToonTiles=require("src.game.toon_tiles")
 local O={}
 local cache={}
 local pi=math.pi
@@ -199,6 +200,13 @@ function O.renderStyle(obj)
   return item.hideFromEnemy and 0.6 or 1,item.blocker
 end
 function O.draw(obj,x,y,zoom)
+  -- Arvores, arbustos, pedras e ouro agora sao recursos top-down em sprites.
+  -- Construcoes e outros itens seguem intactos no renderer de Moo-Quest.
+  local hasItem=type(obj.id)=="number" and Catalog.itemById(obj.id)~=nil
+  if not hasItem and type(obj.type)=="number"
+    and obj.type>=0 and obj.type<=3 then
+    return ToonTiles.drawResource(obj.type,x,y,obj.scale,zoom)
+  end
   local sprite=O.sprite(obj)
   if not sprite then return false end
   local alpha,blocker=O.renderStyle(obj)
