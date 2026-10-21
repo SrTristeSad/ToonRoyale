@@ -57,6 +57,7 @@ end
 
 function O.install()
   local world,camera,player,showUI
+  local smokeFrames=0
   function love.load()
     love.graphics.setDefaultFilter("linear","linear")
     world=O.newWorld()
@@ -132,6 +133,13 @@ function O.install()
         floor(player.x),floor(player.y)),27,h-35)
     end
     love.graphics.setColor(1,1,1,1)
+    if os.getenv("TOONROYALE_SMOKE")=="1" then
+      smokeFrames=smokeFrames+1
+      if smokeFrames>=4 then
+        print("TOONROYALE OFFLINE VISUAL SMOKE PASS")
+        love.event.quit(0)
+      end
+    end
   end
   function love.resize(w,h)
     if camera then camera:resize(w,h) end

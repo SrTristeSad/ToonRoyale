@@ -36,5 +36,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: love-headless-test-report
-          path: ~/.local/share/love/moo_quest/test-results.txt
+          path: ~/.local/share/love/toonroyale/test-results.txt
           if-no-files-found: warn
