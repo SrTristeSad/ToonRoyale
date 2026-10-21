@@ -16,15 +16,16 @@ function O.newWorld()
   for cy=0,n-1 do
     for cx=0,n-1 do
       local v=hash(cx,cy,17)
-      if v>0.48 then
+      if v>0.45 then
         local x=cx*CELL+48+hash(cx,cy,19)*(CELL-96)
         local y=cy*CELL+48+hash(cx,cy,21)*(CELL-96)
-        local typ=v>0.82 and 2 or 0
-        local radius=typ==0 and 61 or 44
+        local typ=v>0.96 and 3 or v>0.78 and 2 or v>0.65 and 1 or 0
+        -- Troncos e rochas bloqueiam; arbustos decorativos sao atravessaveis.
+        local radius=typ==0 and 32 or typ==1 and 0 or 25
         -- Area aberta para o primeiro spawn, sem aprisionar o personagem.
         local dx,dy=x-Config.mapScale/2,y-(Config.mapScale/2-1100)
         if dx*dx+dy*dy>360*360 then
-          local obj={x=x,y=y,type=typ,scale=typ==0 and 110 or 84,
+          local obj={x=x,y=y,type=typ,scale=typ==0 and 110 or typ==1 and 83 or 77,
             radius=radius}
           world.cells[cy*n+cx+1]=obj
           world.objects[#world.objects+1]=obj
@@ -50,7 +51,7 @@ function O.collides(w,x,y,r)
   local blocked=false
   nearby(w,x,y,function(o)
     local dx,dy=x-o.x,y-o.y
-    if dx*dx+dy*dy<(r+o.radius)^2 then blocked=true end
+    if o.radius>0 and dx*dx+dy*dy<(r+o.radius)^2 then blocked=true end
   end)
   return blocked
 end
@@ -67,6 +68,10 @@ function O.install()
     camera:follow(player.x,player.y)
     showUI=true
     Tiles.init()
+    if os.getenv("TOONROYALE_REQUIRE_TINY")=="1" then
+      assert(require("src.game.tiny_swords_assets").available(),
+        "Tiny Swords PNGs nao foram carregados no LÖVE2D")
+    end
   end
   function love.update(dt)
     dt=math.min(dt,0.06)
@@ -113,7 +118,7 @@ function O.install()
     for _,o in ipairs(visibles) do
       local x,y=camera:worldToScreen(o.x,o.y)
       if o.player then Tiles.drawPlayer(x,y,player.angle,camera.zoom)
-      else Tiles.drawResource(o.type,x,y,o.scale,camera.zoom) end
+      else Tiles.drawResource(o.type,x,y,o.scale,camera.zoom,o.x,o.y) end
     end
     local x0s,y0s=camera:worldToScreen(0,0)
     local x1s,y1s=camera:worldToScreen(world.width,world.height)

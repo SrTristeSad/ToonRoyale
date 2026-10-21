@@ -38,7 +38,8 @@ M.paths={
   "tests/json.lua",
   "tests/clan_api.lua",
   "tests/account_clans.lua",
-  "tests/toon_world.lua"
+  "tests/toon_world.lua",
+  "tests/tiny_swords.lua"
 }
 function M.run()
   local results={passed=0,failed=0,rows={}}

@@ -1,0 +1,36 @@
+name: Tiny Swords private-import and graphical test
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  art-integration:
+    name: Verify local ZIP importer with synthetic artwork
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      TOONROYALE_REQUIRE_TINY: '1'
+      TOONROYALE_SMOKE: '1'
+      SDL_AUDIODRIVER: dummy
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --omit=dev --no-audit --no-fund
+      - name: Generate synthetic ZIP and run user-asset importer
+        run: |
+          node tools/test-tiny-swords-import.mjs
+          git check-ignore assets/third_party/tiny_swords/tileset/grass.png
+      - name: Install LOVE2D 11.5 and virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y love xvfb xauth libgl1-mesa-dri
+      - name: Render imported spritesheet tiles in-game
+        run: |
+          set -eu
+          timeout 45s xvfb-run -a -s "-screen 0 1280x720x24" love .
